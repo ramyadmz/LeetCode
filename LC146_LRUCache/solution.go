@@ -49,10 +49,26 @@ func (this *LRUCache) removeNode(node *Node) {
 	}
 }
 
+// Get retrieves the value of the given key if it exists in the cache, else returns -1.
 func (this *LRUCache) Get(key int) int {
-
+	node, exist := this.keyToNode[key]
+	if !exist {
+		return -1
+	}
+	this.removeNode(node)
+	newNode := this.addNode(key, node.value)
+	this.keyToNode[key] = newNode
+	return node.value
 }
 
+// Put adds a new node with the given key and value to the cache.
 func (this *LRUCache) Put(key int, value int) {
-
+	if node, exists := this.keyToNode[key]; exists {
+		this.removeNode(node)
+	} else if this.capacity == len(this.keyToNode) {
+		delete(this.keyToNode, this.head.key)
+		this.removeNode(this.head)
+	}
+	newNode := this.addNode(key, value)
+	this.keyToNode[key] = newNode
 }
